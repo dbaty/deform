@@ -621,12 +621,73 @@ class SelectWidget(Widget):
     **Attributes/Arguments**
 
     values
-        A sequence of two-tuples (the first value must be of type
+
+        If the ``optgroup`` attribute/argument is not enabled, a
+        sequence of two-tuples (the first value must be of type
         string, unicode or integer, the second value must be string or
-        unicode) indicating allowable, displayed values, e.g. ``(
+        unicode) indicating allowable, displayed values, e.g.  ``(
         ('true', 'True'), ('false', 'False') )``.  The first element
         in the tuple is the value that should be returned when the
         form is posted.  The second is the display value.
+
+        If the ``optgroup`` attribute *is* enabled, ``values`` should
+        be a sequence of sequence of two-tuples, the first item of
+        each sequence being the label of the ``<optgroup>`` HTML tag:
+
+        .. code-block:: python
+
+            (
+              ('Guitarists', (
+                ('page', 'Jimmy Page'),
+                ('hendrix', 'Jimi Hendrix'), )),
+              ('Drummers', (
+                ('cobham', 'Billy Cobham'),
+                ('bonham', 'John Bonham'), ))
+            )
+
+        This would render as something similar to the following:
+
+        .. code-block:: html
+
+            <optgroup label="Guitarists">
+              <option value="page">Jimmy Page</option>
+              <option value="hendrix">Jimi Hendrix</option>
+            </optgroup>
+            <optgroup label="Drummers">
+              <option value="cobham">Billy Cobham</option>
+              <option value="bonham">John Bonham</option>
+            </optgroup>
+
+        If the ``optgroup`` attribute is enabled but an option should
+        not appear within any ``<optgroup>`` tag, the special label
+        ``SelectWidget.not_in_optgroup_marker`` must be used:
+
+        .. code-block:: python
+
+            (
+              (SelectWidget.not_in_optgroup_marker, (
+                ('', 'Select your favorite musician'), )),
+              ('Guitarists', (
+                ('page', 'Jimmy Page'),
+                ('hendrix', 'Jimi Hendrix'), )),
+              ('Drummers', (
+                ('cobham', 'Billy Cobham'),
+                ('bonham', 'John Bonham'), ))
+            )
+
+        This would render as something similar to the following:
+
+        .. code-block:: html
+
+            <option value="">Select your favorite musician</option>
+            <optgroup label="Guitarists">
+              <option value="page">Jimmy Page</option>
+              <option value="hendrix">Jimi Hendrix</option>
+            </optgroup>
+            <optgroup label="Drummers">
+              <option value="cobham">Billy Cobham</option>
+              <option value="bonham">John Bonham</option>
+            </optgroup>
 
     size
         The ``size`` attribute of the select input field (default:
@@ -646,12 +707,18 @@ class SelectWidget(Widget):
         The template name used to render the widget in read-only mode.
         Default: ``readonly/select``.
 
+    optgroup
+        A boolean value that indicates whether ``<optgroup>`` HTML
+        tags may be rendered. This option requires ``values`` to be
+        given in a specific format (see above).  Default: ``False``.
     """
     template = 'select'
     readonly_template = 'readonly/select'
     null_value = ''
     values = ()
     size = None
+    optgroup = False
+    not_in_optgroup_marker = '__NOT_IN_OPTGROUP__'
 
     def serialize(self, field, cstruct, readonly=False):
         if cstruct in (null, None):

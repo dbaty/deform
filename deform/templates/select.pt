@@ -2,8 +2,27 @@
         id="${field.oid}"
         tal:attributes="size field.widget.size"
         tal:attributes="class field.widget.css_class">
- <option tal:repeat="(value, description) values"
-         tal:attributes="selected value == cstruct and 'selected';
-                         class field.widget.css_class"
-         value="${value}">${description}</option>
+ <tal:if tal:condition="not field.widget.optgroup">
+  <option tal:repeat="(value, description) values"
+          tal:attributes="selected value == cstruct and 'selected';
+                          class field.widget.css_class"
+          value="${value}">${description}</option>
+ </tal:if>
+ <tal:if tal:condition="field.widget.optgroup">
+   <tal:loop tal:repeat="(label, options) values">
+     <optgroup tal:condition="label != field.widget.not_in_optgroup_marker"
+               tal:attributes="label label">
+       <option tal:repeat="(value, description) options"
+               tal:attributes="selected value == cstruct and 'selected';
+                             class field.widget.css_class"
+               value="${value}">${description}</option>
+     </optgroup>
+     <tal:if-not-in-optgroup tal:condition="label == field.widget.not_in_optgroup_marker">
+       <option tal:repeat="(value, description) options"
+               tal:attributes="selected value == cstruct and 'selected';
+                               class field.widget.css_class"
+               value="${value}">${description}</option>
+     </tal:if-not-in-optgroup>
+   </tal:loop>
+ </tal:if>
 </select>
